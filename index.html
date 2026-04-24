@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ULTRA CYBER SYSTEM</title>
+
+<style>
+body {
+    margin: 0;
+    background: black;
+    color: #00ff9f;
+    font-family: monospace;
+    overflow: hidden;
+}
+
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.center {
+    text-align: center;
+    margin-top: 100px;
+}
+
+input, button {
+    padding: 10px;
+    background: black;
+    border: 1px solid #00ff9f;
+    color: #00ff9f;
+    margin-top: 10px;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:hover {
+    background: #00ff9f;
+    color: black;
+}
+
+.screen { display: none; }
+#login { display: block; }
+
+.card {
+    border: 1px solid #00ff9f;
+    padding: 20px;
+    display: inline-block;
+    box-shadow: 0 0 20px #00ff9f;
+}
+
+.terminal {
+    margin-top: 20px;
+    border: 1px solid #00ff9f;
+    height: 150px;
+    overflow-y: auto;
+    padding: 10px;
+    width: 80%;
+    margin: auto;
+    text-align: left;
+}
+
+.error { color: red; }
+.warning { color: red; font-size: 12px; }
+
+.progress {
+    width: 80%;
+    height: 10px;
+    border: 1px solid #00ff9f;
+    margin: 20px auto;
+}
+
+.bar {
+    height: 100%;
+    width: 0%;
+    background: #00ff9f;
+}
+
+/* COUNTDOWN */
+#countdown {
+    position: fixed;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    color: #00ff9f;
+    font-size: 14px;
+    text-shadow: 0 0 10px #00ff9f;
+}
+
+select {
+    padding: 10px;
+    background: black;
+    border: 1px solid #00ff9f;
+    color: #00ff9f;
+    margin-top: 10px;
+    font-family: monospace;
+    cursor: pointer;
+}
+
+select:hover {
+    background: #00ff9f;
+    color: black;
+}
+
+/* dropdown list (opsi) */
+option {
+    background: black;
+    color: #00ff9f;
+}
+
+select {
+    box-shadow: 0 0 10px #00ff9f;
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="matrix"></canvas>
+
+<!-- LOGIN -->
+<div id="login" class="center screen">
+    <h1> ACCESS NODE</h1>
+    <input id="wallet" placeholder="Enter username"><br>
+    <button onclick="checkUser()">Next</button>
+    <div id="error" class="error"></div>
+</div>
+
+<!-- PASSWORD -->
+<div id="passwordScreen" class="center screen">
+    <h1> VERIFY PASSWORD</h1>
+    <input type="password" id="password"><br>
+    <button onclick="checkPass()">Verify</button>
+    <div id="errorPass" class="error"></div>
+</div>
+
+<!-- OTP -->
+<div id="otpScreen" class="center screen">
+    <h1> ENTER OTP</h1>
+    <p id="otpText"></p>
+    <input id="otpInput"><br>
+    <button onclick="verifyOTP()">Confirm</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="screen" style="text-align:center; padding:30px;">
+    <h1> BLOCKCHAIN CONTROL PANEL</h1>
+
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    
+    
+    <div class="card">
+        <p>Wallet: <span id="user"></span></p>
+        <p>Status: <span style="color:lime">SECURE</span></p>
+        <p>BTC: <span id="btc">0.0000000</span></p>
+        <p>IDR: <span id="idr">Rp 0</span></p>
+    </div>
+
+    <div class="terminal" id="terminal"></div>
+
+    <div class="card" style="margin-top:20px;">
+    <p>Select Withdraw Method:</p>
+
+    <select id="withdrawMethod" onchange="showWithdrawForm()">
+        <option value="">-- Choose Method --</option>
+        <option value="paypal">PayPal</option>
+        <option value="phantom">Phantom Wallet</option>
+        <option value="exchange">Exchange Wallet</option>
+    </select>
+
+    <div id="withdrawForm" style="margin-top:15px;"></div>
+</div>
+
+</div>
+
+<!-- COUNTDOWN -->
+<div id="countdown">𝚄 𝙽 𝙻 𝙸 𝙼 𝙸 𝚃 𝙴 𝙳</div>
+
+<script>
+let attempts = 0;
+let walletName = "";
+let otpCode = "";
+
+/* NAV */
+function show(id){
+    document.querySelectorAll(".screen").forEach(s=>s.style.display="none");
+    document.getElementById(id).style.display="block";
+}
+
+/* LOGIN */
+function checkUser(){
+    let val = document.getElementById("wallet").value;
+
+    if(val !== "muhammadathallahnurhud"){
+        document.getElementById("error").innerText = "ACCESS DENIED ❌";
+        return;
+    }
+
+    walletName = val;
+    show("passwordScreen");
+}
+
+function checkPass(){
+    let pass = document.getElementById("password").value;
+
+    if(pass !== "athallah.01.mr@gmail.com"){
+        attempts++;
+        document.getElementById("errorPass").innerText = "WRONG PASSWORD ❌";
+
+        if(attempts >= 3){
+            alert("🚨 INTRUSION DETECTED 🚨");
+            location.reload();
+        }
+        return;
+    }
+
+    generateOTP();
+    show("otpScreen");
+}
+
+/* OTP */
+function generateOTP(){
+    otpCode = Math.floor(100000 + Math.random()*900000);
+    document.getElementById("otpText").innerText = "OTP CODE: " + otpCode;
+}
+
+function verifyOTP(){
+    let input = document.getElementById("otpInput").value;
+
+    if(input != otpCode){
+        alert("INVALID OTP ❌");
+        return;
+    }
+
+    startSystem();
+}
+
+/* TERMINAL */
+const terminal = document.getElementById("terminal");
+
+function log(msg){
+    let d = document.createElement("div");
+    d.innerText = msg;
+    terminal.appendChild(d);
+    terminal.scrollTop = terminal.scrollHeight;
+}
+
+/* SYSTEM */
+function startSystem(){
+    show("dashboard");
+    document.getElementById("user").innerText = walletName;
+
+    let logs = [
+        "Authenticating...",
+        "Access granted ✔",
+        "Connecting to blockchain...",
+        "Decrypting wallet...",
+        "Loading assets..."
+    ];
+
+    logs.forEach((l,i)=>setTimeout(()=>log(l), i*700));
+
+    let progress = 0;
+    let bar = document.getElementById("bar");
+
+    let load = setInterval(()=>{
+        progress+=5;
+        bar.style.width = progress + "%";
+
+        if(progress>=100){
+            clearInterval(load);
+            loadBalance();
+        }
+    },100);
+}
+
+/* BALANCE */
+function loadBalance(){
+    let btc = 0.211854;
+    let idr = 284597335.78;
+
+    let cur = 0;
+
+    let anim = setInterval(()=>{
+        cur += btc/30;
+
+        if(cur>=btc){
+            cur = btc;
+            clearInterval(anim);
+        }
+
+        document.getElementById("btc").innerText = cur.toFixed(7);
+        document.getElementById("idr").innerText =
+            "Rp " + ((cur/btc)*idr).toLocaleString("id-ID");
+
+    },50);
+
+    log("Wallet loaded ✔");
+}
+
+/* MATRIX */
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+
+canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
+
+const letters = "01ABCDEF";
+const fontSize = 14;
+const columns = canvas.width/fontSize;
+const drops = Array(Math.floor(columns)).fill(1);
+
+function draw(){
+    ctx.fillStyle="rgba(0,0,0,0.05)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle="#00ff9f";
+    ctx.font=fontSize+"px monospace";
+
+    for(let i=0;i<drops.length;i++){
+        let text = letters[Math.floor(Math.random()*letters.length)];
+        ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+
+        if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
+            drops[i]=0;
+
+        drops[i]++;
+    }
+}
+setInterval(draw,33);
+
+function showWithdrawForm(){
+    let method = document.getElementById("withdrawMethod").value;
+    let form = document.getElementById("withdrawForm");
+
+    form.innerHTML = "";
+
+    if(method === "paypal"){
+        form.innerHTML = `
+            <p>Enter PayPal Number:</p>
+            <input type="text" id="input1" placeholder="PayPal Email / Number"><br><br>
+            <button onclick="startTransfer('paypal')">TRANSFER</button>
+        `;
+    }
+
+    else if(method === "phantom"){
+        form.innerHTML = `
+            <p>Enter Wallet Address:</p>
+            <input type="text" id="input1" placeholder="BTC / ETH / SOL Address"><br><br>
+            <button onclick="startTransfer('phantom')">TRANSFER</button>
+        `;
+    }
+
+    else if(method === "exchange"){
+        form.innerHTML = `
+            <p>Exchange Name:</p>
+            <input type="text" id="input1" placeholder="e.g Binance"><br><br>
+            <p>Wallet Address:</p>
+            <input type="text" id="input2" placeholder="Exchange Wallet Address"><br><br>
+            <button onclick="startTransfer('exchange')">TRANSFER</button>
+        `;
+    }
+}
+
+function startTransfer(method){
+    let val1 = document.getElementById("input1")?.value;
+    let val2 = document.getElementById("input2")?.value;
+
+    if(!val1 || (method === "exchange" && !val2)){
+        alert("Complete the form ❌");
+        return;
+    }
+
+    show("transferScreen");
+
+    let t = document.getElementById("transferTerminal");
+    t.innerHTML = "";
+
+    function tlog(msg){
+        let d = document.createElement("div");
+        d.innerText = msg;
+        t.appendChild(d);
+        t.scrollTop = t.scrollHeight;
+    }
+
+    let logs = [
+        "Initializing transfer...",
+        "Validating wallet...",
+        "Connecting to blockchain node...",
+        "Encrypting transaction...",
+        "Broadcasting to network...",
+        "Confirming blocks...",
+        "Finalizing transfer..."
+    ];
+
+    logs.forEach((l,i)=>setTimeout(()=>tlog(l), i*800));
+
+    let progress = 0;
+    let bar = document.getElementById("transferBar");
+
+    let load = setInterval(()=>{
+        progress += 4;
+        bar.style.width = progress + "%";
+
+        if(progress >= 100){
+            clearInterval(load);
+            tlog("Transfer Complete ✔");
+        }
+    },120);
+}
+
+</script>
+
+</body>
+</html>
